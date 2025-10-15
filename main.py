@@ -67,7 +67,6 @@ class SanitizerPhoneNumber:
             if country_code and country_code > 0:
                 self.country = default_country
                 self.country_code = country_code
-                return
 
         try:
             instance = parse(self.phone_number, self.country)
