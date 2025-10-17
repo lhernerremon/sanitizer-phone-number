@@ -29,11 +29,11 @@ class SanitizerPhoneNumber:
 
         self._set_phone_number(phone_number, default_country)
         self._set_country(default_country)
-        print(self.phone_number, self.country, self.country_code)
 
     def sanitize(self):
+        empty = DcPhonenumber(country=self.country, country_code=self.country_code)
         if not self.phone_number:
-            return DcPhonenumber(country=self.country, country_code=self.country_code)
+            return empty
         try:
             instance = parse(self.phone_number, self.country)
             number_sanitize = self._clean_phone_number(format_number(instance, PhoneNumberFormat.NATIONAL))
@@ -43,15 +43,15 @@ class SanitizerPhoneNumber:
                 country_code=instance.country_code,
             )
         except Exception:
-            return DcPhonenumber(country=self.country, country_code=self.country_code)
+            return empty
 
     def _set_phone_number(self, phone_number: str, default_country: str | None = None):
         phone_number = self._clean_phone_number(phone_number)
         if not phone_number.startswith("+") and default_country:
             country_code = country_code_for_region(default_country)
-            if country_code:
+            if country_code and not phone_number.startswith(str(country_code)):
                 phone_number = f"+{country_code}{phone_number}"
-        self.phone_number = phone_number  # if phone_number.startswith("+") else f"+{phone_number}"
+        self.phone_number = phone_number
 
     def _set_country(self, default_country: str | None = None):
         if default_country:
